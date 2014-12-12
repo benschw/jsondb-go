@@ -13,26 +13,26 @@ type Job interface {
 	Run(db string) error
 }
 
-// Job to write the database
-type AddJob struct {
-	todo     chan Todo
+// Job to add a Todo to the database
+type AddTodoJob struct {
+	toAdd    chan Todo
 	created  chan Todo
 	exitChan chan error
 }
 
-func NewAddJob(todo Todo) *AddJob {
-	j := &AddJob{
-		todo:     make(chan Todo, 1),
+func NewAddTodoJob(todo Todo) *AddTodoJob {
+	j := &AddTodoJob{
+		toAdd:    make(chan Todo, 1),
 		created:  make(chan Todo, 1),
 		exitChan: make(chan error, 1),
 	}
-	j.todo <- todo
+	j.toAdd <- todo
 	return j
 }
-func (j AddJob) ExitChan() chan error {
+func (j AddTodoJob) ExitChan() chan error {
 	return j.exitChan
 }
-func (j AddJob) Run(db string) error {
+func (j AddTodoJob) Run(db string) error {
 	todos := make(map[string]Todo, 0)
 	content, err := ioutil.ReadFile(db)
 	if err != nil {
@@ -42,7 +42,7 @@ func (j AddJob) Run(db string) error {
 	if err = json.Unmarshal(content, &todos); err != nil {
 		return err
 	}
-	todo := <-j.todo
+	todo := <-j.toAdd
 	id, err := newUUID()
 	todo.Id = id
 	todos[id] = todo
@@ -60,7 +60,7 @@ func (j AddJob) Run(db string) error {
 	return nil
 }
 
-// Job to read the database
+// Job to read all todos from the database
 type ReadTodosJob struct {
 	todos    chan map[string]Todo
 	exitChan chan error

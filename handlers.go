@@ -8,7 +8,7 @@ import (
 )
 
 type TodoHandlers struct {
-	Jobs chan Job
+	Client *DbClient
 }
 
 func (h *TodoHandlers) addTodo(res http.ResponseWriter, req *http.Request) {
@@ -20,48 +20,38 @@ func (h *TodoHandlers) addTodo(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	job := NewAddJob(*todo)
-	h.Jobs <- job
-
-	if err := <-job.ExitChan(); err != nil {
+	created, err := h.Client.addTodo(*todo)
+	if err != nil {
 		log.Print(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	created := <-job.created
+
 	b, err := json.Marshal(created)
 	if err != nil {
 		log.Print(err)
-		http.Error(res, err.Error(), http.StatusInternalServerError)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	res.Header().Set("Location", "todo/"+created.Id)
 	res.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Location", "todo/"+created.Id)
 	res.WriteHeader(http.StatusCreated)
 	fmt.Fprint(res, string(b[:]))
 }
 
 func (h *TodoHandlers) getTodos(res http.ResponseWriter, req *http.Request) {
-	job := NewReadTodosJob()
-	h.Jobs <- job
-
-	if err := <-job.ExitChan(); err != nil {
+	todos, err := h.Client.getTodos()
+	if err != nil {
 		log.Print(err)
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	todos := <-job.todos
 
-	arr := make([]Todo, 0)
-	for _, value := range todos {
-		arr = append(arr, value)
-	}
-
-	b, err := json.Marshal(arr)
+	b, err := json.Marshal(todos)
 	if err != nil {
 		log.Print(err)
-		http.Error(res, err.Error(), http.StatusInternalServerError)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
