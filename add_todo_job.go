@@ -53,6 +53,8 @@ func (j AddTodoJob) Run(db string) error {
 	return nil
 }
 
+// Generate a uuid to use as a unique identifier for each Todo
+// http://play.golang.org/p/4FkNSiUDMg
 func newUUID() (string, error) {
 	uuid := make([]byte, 16)
 	n, err := io.ReadFull(rand.Reader, uuid)
