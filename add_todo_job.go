@@ -8,26 +8,19 @@ import (
 	"io/ioutil"
 )
 
-type Job interface {
-	ExitChan() chan error
-	Run(db string) error
-}
-
 // Job to add a Todo to the database
 type AddTodoJob struct {
-	toAdd    chan Todo
+	toAdd    Todo
 	created  chan Todo
 	exitChan chan error
 }
 
 func NewAddTodoJob(todo Todo) *AddTodoJob {
-	j := &AddTodoJob{
-		toAdd:    make(chan Todo, 1),
+	return &AddTodoJob{
+		toAdd:    todo,
 		created:  make(chan Todo, 1),
 		exitChan: make(chan error, 1),
 	}
-	j.toAdd <- todo
-	return j
 }
 func (j AddTodoJob) ExitChan() chan error {
 	return j.exitChan
@@ -42,9 +35,9 @@ func (j AddTodoJob) Run(db string) error {
 	if err = json.Unmarshal(content, &todos); err != nil {
 		return err
 	}
-	todo := <-j.toAdd
+
 	id, err := newUUID()
-	todo.Id = id
+	todo := Todo{Id: id, Value: j.toAdd.Value}
 	todos[id] = todo
 
 	b, err := json.Marshal(todos)
@@ -57,37 +50,6 @@ func (j AddTodoJob) Run(db string) error {
 	}
 
 	j.created <- todo
-	return nil
-}
-
-// Job to read all todos from the database
-type ReadTodosJob struct {
-	todos    chan map[string]Todo
-	exitChan chan error
-}
-
-func NewReadTodosJob() *ReadTodosJob {
-	return &ReadTodosJob{
-		todos:    make(chan map[string]Todo, 1),
-		exitChan: make(chan error, 1),
-	}
-}
-func (j ReadTodosJob) ExitChan() chan error {
-	return j.exitChan
-}
-func (j ReadTodosJob) Run(db string) error {
-	todos := make(map[string]Todo, 0)
-	content, err := ioutil.ReadFile(db)
-	if err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(content, &todos); err != nil {
-		return err
-	}
-
-	j.todos <- todos
-
 	return nil
 }
 
