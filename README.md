@@ -1,3 +1,5 @@
+Simple pattern for using a json file as a database assuming you don't have too many users or too much data.
+
 ## Build
 
 	go get
