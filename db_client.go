@@ -17,16 +17,31 @@ func (c *DbClient) addTodo(todo Todo) (Todo, error) {
 func (c *DbClient) getTodos() ([]Todo, error) {
 	arr := make([]Todo, 0)
 
-	job := NewReadTodosJob()
-	c.Jobs <- job
-
-	if err := <-job.ExitChan(); err != nil {
+	todos, err := c.getTodoHash()
+	if err != nil {
 		return arr, err
 	}
-	todos := <-job.todos
 
 	for _, value := range todos {
 		arr = append(arr, value)
 	}
 	return arr, nil
+}
+
+func (c *DbClient) getTodo(id string) (Todo, error) {
+	todos, err := c.getTodoHash()
+	if err != nil {
+		return Todo{}, err
+	}
+	return todos[id], nil
+}
+
+func (c *DbClient) getTodoHash() (map[string]Todo, error) {
+	job := NewReadTodosJob()
+	c.Jobs <- job
+
+	if err := <-job.ExitChan(); err != nil {
+		return make(map[string]Todo, 0), err
+	}
+	return <-job.todos, nil
 }

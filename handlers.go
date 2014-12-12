@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -49,6 +50,27 @@ func (h *TodoHandlers) getTodos(res http.ResponseWriter, req *http.Request) {
 	}
 
 	b, err := json.Marshal(todos)
+	if err != nil {
+		log.Print(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusOK)
+	fmt.Fprint(res, string(b[:]))
+}
+
+func (h *TodoHandlers) getTodo(res http.ResponseWriter, req *http.Request) {
+	id := mux.Vars(req)["id"]
+	todo, err := h.Client.getTodo(id)
+	if err != nil {
+		log.Print(err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	b, err := json.Marshal(todo)
 	if err != nil {
 		log.Print(err)
 		res.WriteHeader(http.StatusInternalServerError)

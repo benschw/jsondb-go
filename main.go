@@ -28,6 +28,7 @@ func main() {
 
 	r.HandleFunc("/todo", handlers.addTodo).Methods("POST")
 	r.HandleFunc("/todo", handlers.getTodos).Methods("GET")
+	r.HandleFunc("/todo/{id}", handlers.getTodo).Methods("GET")
 
 	http.Handle("/", r)
 
