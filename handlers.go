@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 type TodoHandlers struct {
@@ -18,6 +19,7 @@ func (h *TodoHandlers) AddTodo(c *gin.Context) {
 
 	created, err := h.Client.AddTodo(todo)
 	if err != nil {
+		log.Print(err)
 		c.JSON(500, "problem decoding body")
 		return
 	}
@@ -29,6 +31,7 @@ func (h *TodoHandlers) AddTodo(c *gin.Context) {
 func (h *TodoHandlers) GetTodos(c *gin.Context) {
 	todos, err := h.Client.GetTodos()
 	if err != nil {
+		log.Print(err)
 		c.JSON(500, "problem decoding body")
 		return
 	}
@@ -41,6 +44,7 @@ func (h *TodoHandlers) GetTodo(c *gin.Context) {
 	id := c.Params.ByName("id")
 	todo, err := h.Client.GetTodo(id)
 	if err != nil {
+		log.Print(err)
 		c.JSON(500, "problem decoding body")
 		return
 	}
@@ -53,9 +57,10 @@ func (h *TodoHandlers) DeleteTodo(c *gin.Context) {
 	id := c.Params.ByName("id")
 
 	if err := h.Client.DeleteTodo(id); err != nil {
+		log.Print(err)
 		c.JSON(500, "problem decoding body")
 		return
 	}
 
-	c.JSON(204, nil)
+	c.Data(204, "application/json", make([]byte, 0))
 }
