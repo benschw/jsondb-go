@@ -1,83 +1,50 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/gorilla/mux"
-	"log"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
+
+type Error struct {
+	Error string `json:"error"`
+}
 
 type TodoHandlers struct {
 	Client *DbClient
 }
 
-func (h *TodoHandlers) addTodo(res http.ResponseWriter, req *http.Request) {
-	todo := &Todo{}
-	decoder := json.NewDecoder(req.Body)
-	if err := decoder.Decode(todo); err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusBadRequest)
+func (h *TodoHandlers) AddTodo(c *gin.Context) {
+	var todo Todo
+	if !c.Bind(&todo) {
+		c.JSON(400, &Error{"problem decoding body"})
 		return
 	}
 
-	created, err := h.Client.addTodo(*todo)
+	created, err := h.Client.AddTodo(todo)
 	if err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusInternalServerError)
+		c.JSON(500, &Error{"problem decoding body"})
 		return
 	}
 
-	b, err := json.Marshal(created)
-	if err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	res.Header().Set("Content-Type", "application/json")
-	res.Header().Set("Location", "todo/"+created.Id)
-	res.WriteHeader(http.StatusCreated)
-	fmt.Fprint(res, string(b[:]))
+	c.JSON(201, created)
 }
 
-func (h *TodoHandlers) getTodos(res http.ResponseWriter, req *http.Request) {
-	todos, err := h.Client.getTodos()
+func (h *TodoHandlers) GetTodos(c *gin.Context) {
+	todos, err := h.Client.GetTodos()
 	if err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusInternalServerError)
+		c.JSON(500, &Error{"problem decoding body"})
 		return
 	}
 
-	b, err := json.Marshal(todos)
-	if err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-	fmt.Fprint(res, string(b[:]))
+	c.JSON(200, todos)
 }
 
-func (h *TodoHandlers) getTodo(res http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
-	todo, err := h.Client.getTodo(id)
+func (h *TodoHandlers) GetTodo(c *gin.Context) {
+	id := c.Params.ByName("id")
+	todo, err := h.Client.GetTodo(id)
 	if err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusInternalServerError)
+		c.JSON(500, &Error{"problem decoding body"})
 		return
 	}
 
-	b, err := json.Marshal(todo)
-	if err != nil {
-		log.Print(err)
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-	fmt.Fprint(res, string(b[:]))
+	c.JSON(200, todo)
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,13 +24,12 @@ func main() {
 	client := &DbClient{Jobs: jobs}
 	handlers := &TodoHandlers{Client: client}
 
-	r := mux.NewRouter()
+	r := gin.Default()
 
-	r.HandleFunc("/todo", handlers.addTodo).Methods("POST")
-	r.HandleFunc("/todo", handlers.getTodos).Methods("GET")
-	r.HandleFunc("/todo/{id}", handlers.getTodo).Methods("GET")
+	r.POST("/todo", handlers.AddTodo)
+	r.GET("/todo", handlers.GetTodos)
+	r.GET("/todo/:id", handlers.GetTodo)
 
-	http.Handle("/", r)
+	r.Run(":8080")
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }

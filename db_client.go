@@ -4,7 +4,7 @@ type DbClient struct {
 	Jobs chan Job
 }
 
-func (c *DbClient) addTodo(todo Todo) (Todo, error) {
+func (c *DbClient) AddTodo(todo Todo) (Todo, error) {
 	job := NewAddTodoJob(todo)
 	c.Jobs <- job
 
@@ -14,7 +14,7 @@ func (c *DbClient) addTodo(todo Todo) (Todo, error) {
 	return <-job.created, nil
 }
 
-func (c *DbClient) getTodos() ([]Todo, error) {
+func (c *DbClient) GetTodos() ([]Todo, error) {
 	arr := make([]Todo, 0)
 
 	todos, err := c.getTodoHash()
@@ -28,7 +28,7 @@ func (c *DbClient) getTodos() ([]Todo, error) {
 	return arr, nil
 }
 
-func (c *DbClient) getTodo(id string) (Todo, error) {
+func (c *DbClient) GetTodo(id string) (Todo, error) {
 	todos, err := c.getTodoHash()
 	if err != nil {
 		return Todo{}, err
