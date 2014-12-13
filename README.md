@@ -42,3 +42,10 @@ Simple pattern for using a json file as a database assuming you don't have too m
 	Content-Length: 68
 
 	{"id":"5473fc07-314b-4bff-8321-adfdee6decfb","value":"Hello World"}
+
+	$ curl -i -H "Content-Type: application/json" -X DELETE localhost:8080/todo/5473fc07-314b-4bff-8321-adfdee6decfb
+	HTTP/1.1 204 No Content
+	Content-Type: application/json
+	Date: Sat, 13 Dec 2014 00:12:32 GMT
+
+

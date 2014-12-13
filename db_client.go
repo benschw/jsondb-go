@@ -9,7 +9,7 @@ func (c *DbClient) AddTodo(todo Todo) (Todo, error) {
 	c.Jobs <- job
 
 	if err := <-job.ExitChan(); err != nil {
-		return Todo{}, nil
+		return Todo{}, err
 	}
 	return <-job.created, nil
 }
@@ -34,6 +34,16 @@ func (c *DbClient) GetTodo(id string) (Todo, error) {
 		return Todo{}, err
 	}
 	return todos[id], nil
+}
+
+func (c *DbClient) DeleteTodo(id string) error {
+	job := NewDeleteTodoJob(id)
+	c.Jobs <- job
+
+	if err := <-job.ExitChan(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *DbClient) getTodoHash() (map[string]Todo, error) {
