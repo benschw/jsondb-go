@@ -6,7 +6,7 @@ import (
 )
 
 type TodoHandlers struct {
-	Client *DbClient
+	Client *TodoClient
 }
 
 // Add a new todo

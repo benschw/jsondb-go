@@ -2,10 +2,8 @@ package main
 
 import (
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 )
 
 // Job to add a Todo to the database
@@ -25,21 +23,12 @@ func NewSaveTodoJob(todo Todo) *SaveTodoJob {
 func (j SaveTodoJob) ExitChan() chan error {
 	return j.exitChan
 }
-func (j SaveTodoJob) Run(db string) error {
-	todos := make(map[string]Todo, 0)
-	content, err := ioutil.ReadFile(db)
-	if err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(content, &todos); err != nil {
-		return err
-	}
+func (j SaveTodoJob) Run(todos map[string]Todo) (map[string]Todo, error) {
 	var todo Todo
 	if j.toSave.Id == "" {
 		id, err := newUUID()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		todo = Todo{Id: id, Value: j.toSave.Value}
 	} else {
@@ -47,17 +36,8 @@ func (j SaveTodoJob) Run(db string) error {
 	}
 	todos[todo.Id] = todo
 
-	b, err := json.Marshal(todos)
-	if err != nil {
-		return err
-	}
-
-	if err = ioutil.WriteFile(db, b, 0644); err != nil {
-		return err
-	}
-
 	j.saved <- todo
-	return nil
+	return todos, nil
 }
 
 // Generate a uuid to use as a unique identifier for each Todo

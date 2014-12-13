@@ -25,7 +25,7 @@ func main() {
 	go ProcessJobs(jobs, Db)
 
 	// create dependencies
-	client := &DbClient{Jobs: jobs}
+	client := &TodoClient{Jobs: jobs}
 	handlers := &TodoHandlers{Client: client}
 
 	// configure routes

@@ -1,10 +1,5 @@
 package main
 
-import (
-	"encoding/json"
-	"io/ioutil"
-)
-
 // Job to read all todos from the database
 type ReadTodosJob struct {
 	todos    chan map[string]Todo
@@ -20,18 +15,8 @@ func NewReadTodosJob() *ReadTodosJob {
 func (j ReadTodosJob) ExitChan() chan error {
 	return j.exitChan
 }
-func (j ReadTodosJob) Run(db string) error {
-	todos := make(map[string]Todo, 0)
-	content, err := ioutil.ReadFile(db)
-	if err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(content, &todos); err != nil {
-		return err
-	}
-
+func (j ReadTodosJob) Run(todos map[string]Todo) (map[string]Todo, error) {
 	j.todos <- todos
 
-	return nil
+	return nil, nil
 }
