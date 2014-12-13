@@ -4,14 +4,14 @@ type DbClient struct {
 	Jobs chan Job
 }
 
-func (c *DbClient) AddTodo(todo Todo) (Todo, error) {
-	job := NewAddTodoJob(todo)
+func (c *DbClient) SaveTodo(todo Todo) (Todo, error) {
+	job := NewSaveTodoJob(todo)
 	c.Jobs <- job
 
 	if err := <-job.ExitChan(); err != nil {
 		return Todo{}, err
 	}
-	return <-job.created, nil
+	return <-job.saved, nil
 }
 
 func (c *DbClient) GetTodos() ([]Todo, error) {

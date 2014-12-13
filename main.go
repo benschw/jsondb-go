@@ -34,6 +34,7 @@ func main() {
 	r.POST("/todo", handlers.AddTodo)
 	r.GET("/todo", handlers.GetTodos)
 	r.GET("/todo/:id", handlers.GetTodo)
+	r.PUT("/todo/:id", handlers.SaveTodo)
 	r.DELETE("/todo/:id", handlers.DeleteTodo)
 
 	// start web server

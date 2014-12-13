@@ -48,4 +48,11 @@ Simple pattern for using a json file as a database assuming you don't have too m
 	Content-Type: application/json
 	Date: Sat, 13 Dec 2014 00:12:32 GMT
 
+	$ curl -i -H "Content-Type: application/json" -X PUT localhost:8080/todo/3e39df85-9851-4ce9-af0c-0dd831e3b970 -d '{"value": "Foo"}'
+	HTTP/1.1 200 OK
+	Content-Type: application/json
+	Date: Sat, 13 Dec 2014 00:13:07 GMT
+	Content-Length: 66
+
+	{"id":"3e39df85-9851-4ce9-af0c-0dd831e3b970","value":"Foo"}
 

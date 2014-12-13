@@ -16,8 +16,9 @@ func (h *TodoHandlers) AddTodo(c *gin.Context) {
 		c.JSON(400, "problem decoding body")
 		return
 	}
+	todo.Id = ""
 
-	created, err := h.Client.AddTodo(todo)
+	created, err := h.Client.SaveTodo(todo)
 	if err != nil {
 		log.Print(err)
 		c.JSON(500, "problem decoding body")
@@ -50,6 +51,26 @@ func (h *TodoHandlers) GetTodo(c *gin.Context) {
 	}
 
 	c.JSON(200, todo)
+}
+
+// Add a new todo
+func (h *TodoHandlers) SaveTodo(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var todo Todo
+	if !c.Bind(&todo) {
+		c.JSON(400, "problem decoding body")
+		return
+	}
+	todo.Id = id
+
+	saved, err := h.Client.SaveTodo(todo)
+	if err != nil {
+		log.Print(err)
+		c.JSON(500, "problem decoding body")
+		return
+	}
+
+	c.JSON(200, saved)
 }
 
 // Delete a todo by id
