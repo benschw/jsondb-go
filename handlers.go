@@ -12,7 +12,7 @@ type TodoHandlers struct {
 // Add a new todo
 func (h *TodoHandlers) AddTodo(c *gin.Context) {
 	var todo Todo
-	if !c.Bind(&todo) {
+	if err := c.Bind(&todo); err != nil {
 		c.JSON(400, "problem decoding body")
 		return
 	}
@@ -57,7 +57,7 @@ func (h *TodoHandlers) GetTodo(c *gin.Context) {
 func (h *TodoHandlers) SaveTodo(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var todo Todo
-	if !c.Bind(&todo) {
+	if err := c.Bind(&todo); err != nil {
 		c.JSON(400, "problem decoding body")
 		return
 	}
